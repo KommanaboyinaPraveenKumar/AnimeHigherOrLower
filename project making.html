@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Higher or Lower</title>
+    <style>
+        body{
+            background-image: url("pro.jpg");
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            margin: 0 10px; 
+            height: 100vh;
+        }
+        div.game-container{
+            text-align: center;
+            color:rgb(29, 96, 231);
+            
+        }
+        button{
+          font-size: 35px;
+            
+            background-color:rgb(38, 227, 70);
+            color:white;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border:none;
+            cursor:pointer;
+            margin:0 10px;
+            
+        }
+        button#lower{
+          background-color: rgb(58, 58, 233);
+        }
+        button:hover,button#lower:hover{
+            background-color: red;
+        }
+        
+        h3,#over,#final{
+            color:rgb(0, 0, 0);
+            text-align: center;
+            text-shadow: 2px 2px 4px white;
+            font-size: 50px;
+            
+        }
+        button:focus {
+    outline: 2px solid blue;
+}
+img{
+  width: 250px;
+    height: 350px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    
+}
+#name1,#name2{
+  color: white;
+  font: bold;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  
+}
+#Vs,#r{
+  
+    font-size: 30px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: white;
+    text-shadow: 2px 2px 4px black;
+
+}
+#k {
+    font-size: 50px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        color:red;
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+div.animes{
+  
+    gap: 20px;
+    margin: 20px auto;
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+}
+h1{
+  font-weight: bold;
+  margin: 10px 0;
+    
+    text-shadow: 2px 2px 4px white;
+}
+    </style>
+</head>
+<body>
+    
+    <div class="game-container">
+        <h1>Anime Higher or Lower</h1>
+        <div class="animes">
+            <img id="current" alt="Image"><span>     </span>
+            <img id="next" alt="Image">
+            <p id="Vs"><a id="name1"></a><a id="k">vs</a> <a id="name2"></a></p>
+            <p id="r">Rank of current anime: <span id="rank"></span></p>
+        </div>
+        <div class="buttons">
+            <button id="higher">Higher</button>
+            <button id="lower">Lower</button>
+
+        </div>
+        <h3> Score: <a id="value">0</a></h3>
+
+    </div>
+    <script>
+        let score=0;
+        let k,j;
+        fetch('anime_data.json')
+        .then(response => response.json())
+  .then(json => {
+    data = json;
+    k=random(0,49);
+   j=random(0,49);
+  while(k==j)
+  {
+    j=random(0,49);
+  }
+    displayAnime(); 
+  })
+  .catch(error => console.error('Error loading JSON:', error));
+   
+  function random(min, max)
+  {
+   
+    return Math.floor(Math.random()*(max-min+1))+min;
+
+  }
+  function displayAnime()
+  {
+    const anime1=data[k];
+    const anime2=data[j];
+    document.getElementById('current').src=anime1.image_url;
+    document.getElementById('next').src=anime2.image_url;
+    document.getElementById('rank').textContent=anime1.rank;
+    document.getElementById('value').textContent=score;
+    document.getElementById('name1').textContent=anime1.title;
+    document.getElementById('name2').textContent=anime2.title;
+    ChoiceCapture(anime1,anime2)
+
+  }
+  function ChoiceCapture(anime1, anime2)
+  {
+    document.getElementById('higher').onclick=()=>ChoiceMade(anime1,anime2,"higher");
+    document.getElementById('lower').onclick=()=>ChoiceMade(anime1,anime2,"lower");
+  }
+  function ChoiceMade(anime1,anime2,choice)
+  {
+    if((choice=="higher" && anime1.rank<anime2.rank)|| (choice=="lower" && anime1.rank>anime2.rank))
+  {
+    score++;
+    document.getElementById('value').textContent=score;
+    k=j;
+   j=random(0,49);
+   while(j==k)
+   {
+    j=random(0,49);
+   }
+   displayAnime();
+
+  }
+  else{
+    
+    EndGame();
+  }
+  }
+  function EndGame() {
+    
+  document.querySelector('.game-container').innerHTML = 
+    `<h1 id="over"> GAME OVER </h1><p id="final"> Your final score is <span>${score}</span></p><button onclick="restart()">Try again</button>`;
+    
+}
+
+function restart() {
+    score = 0;
+    k = random(0, 49);
+    j = random(0, 49);
+    while (j == k) {
+        j = random(0, 49);
+    }
+    
+    document.querySelector('.game-container').innerHTML = `
+        <h1>Anime Higher or Lower</h1>
+        <div class="animes">
+            <img id="current" alt="Image">
+            <img id="next" alt="Image">
+            <p id="Vs"><a id="name1"></a><a id="k">vs</a> <a id="name2"></a></p>
+            <p id="r">Rank of current anime: <span id="rank"></span></p>
+        </div>
+        <div class="buttons">
+            <button id="higher">Higher</button>
+            <button id="lower">Lower</button>
+        </div>
+        <h3> Score: <a id="value">0</a></h3>
+    `;
+    
+    displayAnime();
+}
+
+    </script>
+</body>
+</html>
